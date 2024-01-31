@@ -1,0 +1,31 @@
+#!/bin/bash
+
+## Init is run on host
+## For now it is run every time the script is launched, but
+## it should be launched only once after build.
+
+## Accessible variables are:
+## - SERVICE_NAME        Name of current service
+## - DOCKER_BASE_IMAGE   Base image from which this service might be built if any
+## - SERVICE_DATASTORE           Location on host of the DATASTORE of this service
+## - SERVICE_CONFIGSTORE         Location on host of the CONFIGSTORE of this service
+
+
+set -e
+
+sender=$(options-get sender-email) || exit 1
+
+init-config-add "
+$SERVICE_NAME:
+  volumes:
+    - $SERVICE_DATASTORE/.n8n:/home/node/.n8n
+  environment:
+    N8N_SMTP_SENDER: \"$sender\"
+    GENERIC_TIMEZONE: "Europe/Paris"
+    TZ: "Europe/Paris"
+"
+
+uid=$(docker_get_uid "$SERVICE_NAME" "node")
+mkdir -p "$SERVICE_DATASTORE/.n8n"
+chown "$uid" "$SERVICE_DATASTORE/.n8n"
+

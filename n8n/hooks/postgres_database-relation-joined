@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+PASSWORD="$(relation-get password)"
+USER="$(relation-get user)"
+DBNAME="$(relation-get dbname)"
+
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: $TARGET_SERVICE_NAME
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: $DBNAME
+      DB_POSTGRESDB_USER: $USER
+      DB_POSTGRESDB_PASSWORD: $PASSWORD
+"
+
+info "Configured $SERVICE_NAME code for $TARGET_SERVICE_NAME access."

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+host=$(relation-get host) || exit 1
+port=$(relation-get port) || exit 1
+user=$(relation-get login) || exit 1
+password="$(relation-get password)" || exit 1
+
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      N8N_SMTP_USER: \"$user\"
+      N8N_SMTP_PASS: \"${password//\$/\$\$}\"
+      N8N_SMTP_HOST: \"$host\"
+      N8N_SMTP_PORT: \"$port\"
+"
+
