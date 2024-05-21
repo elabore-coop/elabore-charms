@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+PASSWORD="$(relation-get password)"
+USER="$(relation-get user)"
+DBNAME="$(relation-get dbname)"
+
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      DATABASE_URL: postgres://$USER:$PASSWORD@$TARGET_SERVICE_NAME:5432/$DBNAME
+      PGSSLMODE: disable
+"
+
+info "Configured $SERVICE_NAME code for $TARGET_SERVICE_NAME access."
