@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -e
+
+URL=$(relation-get url) || { 
+    echo "Failed to query for 'url' value"
+    exit 1
+}
+DOMAIN_PATH="${URL#*://}"
+
+if [[ "$DOMAIN_PATH" == *"/"* ]]; then 
+    DOMAIN="${DOMAIN_PATH%%/*}"
+    UPATH="/${DOMAIN_PATH#*/}"
+else
+    DOMAIN="${DOMAIN_PATH}"
+    UPATH=""
+fi
+
+PROTO="${URL%:*}"
+if [[ "$DOMAIN" == *":"* ]]; then
+    PORT="${DOMAIN#*:}"
+    DOMAIN="${DOMAIN%%:*}"
+else
+
+    case "$PROTO" in
+    	http)
+    		PORT=80
+    		;;
+    	https)
+    		PORT=443
+    		;;
+    	*)
+		echo "Unknown portocol '$PROTO' in url '$URL'."
+    		exit 1
+    		;;
+    esac
+
+fi
+
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      URL: \"${PROTO}://${DOMAIN}:${PORT}${UPATH}\"
+
+"
+

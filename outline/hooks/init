@@ -1,0 +1,74 @@
+#!/bin/bash
+
+## Init is run on host
+## For now it is run every time the script is launched, but
+## it should be launched only once after build.
+
+## Accessible variables are:
+## - SERVICE_NAME        Name of current service
+## - DOCKER_BASE_IMAGE   Base image from which this service might be built if any
+## - SERVICE_DATASTORE           Location on host of the DATASTORE of this service
+## - SERVICE_CONFIGSTORE         Location on host of the CONFIGSTORE of this service
+
+
+set -e
+
+PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/secret-key
+UTILS_SECRET="$SERVICE_DATASTORE"/.compose/password/utils-secret
+
+if ! [ -f "$UTILS_SECRET" ]; then
+    info "Generating secret password"
+    mkdir -p "${UTILS_SECRET%/*}"
+    umask 077
+    openssl rand -hex 32 > "$UTILS_SECRET"
+else
+    info "Using existing utils-secret"
+fi
+
+if ! [ -f "$PASSWORD_FILE" ]; then
+    info "Generating secret password"
+    mkdir -p "${PASSWORD_FILE%/*}"
+    umask 077
+    openssl rand -hex 32 > "$PASSWORD_FILE"
+else
+    info "Using existing secret password"
+fi
+
+secret_password=$(cat "$PASSWORD_FILE")
+utils_secret=$(cat "$UTILS_SECRET")
+
+sender=$(options-get sender-email) || exit 1
+oidc_client_id=$(options-get oidc-client-id) || exit 1
+oidc_client_secret=$(options-get oidc-client-secret) || exit 1
+oidc_auth_uri=$(options-get oidc-auth-uri) || exit 1
+oidc_token_uri=$(options-get oidc-token-uri) || exit 1
+oidc_user_info_uri=$(options-get oidc-user-info-uri) || exit 1
+oidc_logout_uri=$(options-get oidc-logout-uri) || exit 1
+
+init-config-add "
+$SERVICE_NAME:
+  volumes:
+    - $SERVICE_DATASTORE:/var/lib/outline/data
+  environment:
+    SMTP_FROM_EMAIL: \"$sender\"
+    DEFAULT_LANGUAGE: \"fr_FR\"
+    SECRET_KEY: \"$secret_password\"
+    UTILS_SECRET: \"$utils_secret\"
+    OIDC_CLIENT_ID: \"$oidc_client_id\"
+    OIDC_CLIENT_SECRET: \"$oidc_client_secret\"
+    OIDC_AUTH_URI: \"$oidc_auth_uri\"
+    OIDC_TOKEN_URI: \"$oidc_token_uri\"
+    OIDC_USERINFO_URI: \"$oidc_user_info_uri\"
+    OIDC_LOGOUT_URI: \"$oidc_logout_uri\"
+    OIDC_SCOPES: \"openid\"
+    OIDC_USERNAME_CLAIM: \"preferred_username\"
+    OIDC_DISPLAY_NAME: \"OpenID Connect\"
+    NODE_ENV: \"production\"
+    LOG_LEVEL: \"debug\"
+    FORCE_HTTPS: \"false\"
+    FILE_STORAGE: \"local\"
+    #DEVELOPMENT_UNSAFE_INLINE_CSP: \"true\"
+    #DEBUG: \"http\"
+"
+
+

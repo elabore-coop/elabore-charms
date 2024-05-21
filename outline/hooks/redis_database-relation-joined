@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+
+# USER="$(relation-get user)"
+# DBNAME="$(relation-get dbname)"
+# PASSWORD=$(relation-get password) || {
+#     err "Can't get password for '$SERVICE_NAME' from '$TARGET_SERVICE_NAME'."
+#     exit 1
+# }
+
+PASSWORD=$(relation-get password) || {
+    err "Can't get password for '$SERVICE_NAME' from '$TARGET_SERVICE_NAME'."
+    exit 1
+}
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      REDIS_URL: redis://:$PASSWORD@$TARGET_SERVICE_NAME:6379
+"
+
+info "Configured $SERVICE_NAME code for $TARGET_SERVICE_NAME access."

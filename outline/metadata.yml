@@ -1,0 +1,47 @@
+docker-image: docker.0k.io/outline:0.76.0-elabore
+
+uses:
+  postgres-database:
+    #constraint: required | recommended | optional
+    #auto: pair | summon | none ## default: pair
+    constraint: required
+    auto: summon
+    solves:
+      database: "main storage"
+    default-options:
+      extensions:
+        - uuid-ossp
+  redis-database:
+    constraint: required
+    auto: summon
+    solves:
+      database: "short time storage"
+  smtp-server:
+    constraint: required
+    auto: summon
+    solves:
+      proxy: "Public access"
+  web-proxy:
+    #constraint: required | recommended | optional
+    #auto: pair | summon | none ## default: pair
+    constraint: recommended
+    auto: pair
+    solves:
+      proxy: "Public access"
+    default-options:
+      target: !var-expand ${MASTER_BASE_SERVICE_NAME}:3000
+      apache-custom-rules:
+        - !var-expand |
+          
+          ## Use RewriteEngine to handle WebSocket connection upgrades    
+          RewriteEngine On
+          RewriteCond %{HTTP:Connection} Upgrade [NC]
+          RewriteCond %{HTTP:Upgrade} websocket [NC]
+          RewriteRule /(.*)\$ ws://${MASTER_BASE_SERVICE_NAME}:3000/\$1  [P,L]
+ 
+  backup:
+    constraint: recommended
+    auto: pair
+    solves:
+      backup: "Automatic regular backup"
+    default-options:

@@ -1,0 +1,117 @@
+# -*- ispell-local-dictionary: "english" -*-
+
+* Info 
+
+From: https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t
+
+
+* Usage
+
+Config info: https://github.com/outline/outline/blob/main/.env.sample
+
+Odoo config: if you configure odoo OIDC connector, the callback url
+             should be like this : https://<YOUR_OUTLINE>:443/auth/oidc.callback
+
+
+#Requires a =smtp-server= provider to be functional, you can use
+#=smtp-stub= charm to provide information to externally managed =SMTP=.
+
+#+begin_src yaml
+outline:
+  options:
+    sender-email: #the sender email (beware the conf of your SMTP server)
+    oidc-client-id: #the client id of your OIDC provider
+    oidc-client-secret: #the client
+    oidc-auth-uri: #the host of your OIDC provider
+    oidc-token-uri: #the token uri of your OIDC provider
+    oidc-user-info-uri: #the user info uri of your OIDC provider
+    oidc-logout-uri: #the login uri of your OIDC provider
+
+#smtp-stub:
+#  options:
+#    host: smtp.myhost.com
+#    port: 465
+#    connection-security: "ssl/tls"
+#    auth-method: password #IMPORTANT: if not present login password doesn’t work
+#    login: myuser
+#    password: myp4ssw0rd
+##+end_src
+
+** Odoo 14
+
+We monkey-patch odoo in order to make it work, be sure to use latest version in 14.0 of galicea openIDConnection module
+
+* Building a new image
+
+We use the official image with an added patch due to 2 bugs:
+- https://github.com/outline/outline/issues/6859
+- second was not reported yet
+
+Note that a PR was pushed with a fix on the first bug. But this was not yet tested.
+
+These fix are on 0.76.0
+
+** First fix
+
+We need to add "url.port = '';" in ~build/server/middlewares/passport.js~ to remove the port. Note that this is a bad fix but works for our setup.
+
+#+begin_src bash
+IMAGE=docker.0k.io/outline:0.76.0-elabore
+
+echo 'apk add patch bash' | dupd -u "$IMAGE" -- -u 1
+cat <<'EOF1' | dupd -u "$IMAGE" -- -u 0
+patch -p 1 <<'EOF2'
+--- a/build/server/middlewares/passport.js
++++ b/build/server/middlewares/passport.js
+@@ -40,6 +40,7 @@
+           const requestHost = ctx.get("host");
+           const url = new URL("".concat(reqProtocol, "://").concat(requestHost).concat(redirectUrl));
+           url.host = host;
++          url.port = '';
+           return ctx.redirect("".concat(url.toString()).concat(hasQueryString ? "&" : "?", "notice=").concat(notice));
+         }
+         if (_env.default.isDevelopment) {
+EOF2
+EOF1
+#+end_src
+
+** Second fix
+
+Upon calling "/oidc" url, outline will return "Set-Cookie" header 
+with a "domain:" value that is incorrect (still the inner docker 
+domain: "outline" instead of the outer proxy domain from the frontend.)
+
+Fortunately we can simply remove the value "domain" from the cookie by 
+commenting only 2 lines in ~build/server/utils/passport.js~.
+
+The patches will change the "build/" files, so this is a very temporary and brittle fix.
+
+
+#+begin_src bash
+IMAGE=docker.0k.io/outline:0.76.0-elabore
+
+cat <<'EOF1' | dupd -u "$IMAGE" -- -u 0
+patch -p 1 <<'EOF2'
+--- a/build/server/utils/passport.js.orig
++++ b/build/server/utils/passport.js
+@@ -37,7 +37,7 @@
+       const state = buildState(host, token, client);
+       ctx.cookies.set(this.key, state, {
+         expires: (0, _dateFns.addMinutes)(new Date(), 10),
+-        domain: (0, _domains.getCookieDomain)(ctx.hostname, _env.default.isCloudHosted)
++        //domain: (0, _domains.getCookieDomain)(ctx.hostname, _env.default.isCloudHosted)
+       });
+       callback(null, token);
+     });
+@@ -53,7 +53,7 @@
+       // Destroy the one-time pad token and ensure it matches
+       ctx.cookies.set(this.key, "", {
+         expires: (0, _dateFns.subMinutes)(new Date(), 1),
+-        domain: (0, _domains.getCookieDomain)(ctx.hostname, _env.default.isCloudHosted)
++        //domain: (0, _domains.getCookieDomain)(ctx.hostname, _env.default.isCloudHosted)
+       });
+       if (!token || token !== providedToken) {
+         return callback((0, _errors.OAuthStateMismatchError)(), false, token);
+EOF2
+EOF1
+#+end_src
