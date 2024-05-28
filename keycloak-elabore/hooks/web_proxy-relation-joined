@@ -1,0 +1,16 @@
+#!/bin/bash
+
+DOMAIN=$(relation-get domain) || exit 1
+
+set -e
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      KC_HOSTNAME: \"$DOMAIN\"
+      KC_PROXY: edge
+      KC_HTTP_ENABLED: \"true\"
+      KC_HOSTNAME_STRICT: \"false\"
+"
+

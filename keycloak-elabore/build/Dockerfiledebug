@@ -1,0 +1,16 @@
+FROM docker.0k.io/keycloak:17.0.1 as builder
+
+ENV KC_METRICS_ENABLED=true
+ENV KC_FEATURES=token-exchange
+ENV KC_DB=postgres
+RUN /opt/keycloak/bin/kc.sh build
+
+FROM builder as inspector
+ENTRYPOINT ["ls", "-l", "/opt/keycloak/lib/"]
+
+
+#FROM docker.0k.io/keycloak:17.0.0
+#COPY --from=builder /opt/keycloak/lib/quarkus/ /opt/keycloak/lib/quarkus/
+#WORKDIR /opt/keycloak
+#ENV KC_LOG_LEVEL=INFO
+#ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start"]
