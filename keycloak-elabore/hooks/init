@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+admin_password=$(options-get admin-password) || exit 1
+
+init-config-add "\
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      KEYCLOAK_ADMIN: \"admin\"
+      KEYCLOAK_ADMIN_PASSWORD: \"$admin_password\"
+"

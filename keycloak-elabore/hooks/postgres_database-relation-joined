@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+PASSWORD="$(relation-get password)"
+USER="$(relation-get user)"
+DBNAME="$(relation-get dbname)"
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      KC_DB_URL: \"jdbc:postgresql://$MASTER_TARGET_SERVICE_NAME:5432/$DBNAME\"
+      KC_DB_USERNAME: \"$USER\"
+      KC_DB_PASSWORD: \"$PASSWORD\"
+      KC_DB: \"postgres\"
+"
