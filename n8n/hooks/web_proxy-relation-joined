@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+DOMAIN=$(relation-get domain) || { 
+    echo "Failed to get domain"
+    exit 1
+}
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      N8N_HOST: \"${DOMAIN}\"
+      WEBHOOK_URL: \"https:\/\/${DOMAIN}\"
+"
+

@@ -1,4 +1,4 @@
-docker-image: docker.n8n.io/n8nio/n8n:1.23.0
+docker-image: docker.0k.io/n8n:1.45.1
 
 uses:
   postgres-database:
@@ -22,6 +22,15 @@ uses:
       proxy: "Public access"
     default-options:
       target: !var-expand ${MASTER_BASE_SERVICE_NAME}:5678
+      apache-custom-rules:
+        - !var-expand |
+          
+          ## Use RewriteEngine to handle WebSocket connection upgrades    
+          RewriteEngine On
+          RewriteCond %{HTTP:Upgrade} ^websocket$ [NC]
+          RewriteCond %{HTTP:Connection} Upgrade [NC]
+          RewriteRule /(.*)\$ ws://${MASTER_BASE_SERVICE_NAME}:5678/\$1 [P,L]
+
   backup:
     constraint: recommended
     auto: pair
