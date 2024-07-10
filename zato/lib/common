@@ -1,0 +1,19 @@
+#!/bin/bash 
+
+generate_or_get_secret() {
+    local secret_file="$1"
+    local secret_value
+
+    if ! [ -f "$secret_file" ]; then
+        info "Generating secret password for ${secret_file##*/}"
+        mkdir -p "${secret_file%/*}"
+        umask 077
+        secret_value=$(openssl rand -hex 32)
+        echo "$secret_value" > "$secret_file"
+    else
+        info "Using existing secret from ${secret_file##*/}"
+        secret_value=$(cat "$secret_file")
+    fi
+
+    echo "$secret_value"
+}

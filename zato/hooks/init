@@ -1,0 +1,43 @@
+#!/bin/bash
+
+## Init is run on host
+## For now it is run every time the script is launched, but
+## it should be launched only once after build.
+
+## Accessible variables are:
+## - SERVICE_NAME        Name of current service
+## - DOCKER_BASE_IMAGE   Base image from which this service might be built if any
+## - SERVICE_DATASTORE           Location on host of the DATASTORE of this service
+## - SERVICE_CONFIGSTORE         Location on host of the CONFIGSTORE of this service
+
+
+set -e
+
+. lib/common
+
+ZATO_DIR="/opt/hot-deploy"
+DATASTORE_ZATO_DIR="$SERVICE_NAME$ZATO_DIR"
+
+
+SSH_PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/ssh-password
+DASHBOARD_PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/dashboard-password
+IDE_PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/utils-secret
+
+ssh_password=$(generate_or_get_secret "$SSH_PASSWORD_FILE")
+dashboard_password=$(generate_or_get_secret "$DASHBOARD_PASSWORD_FILE")
+ide_password=$(generate_or_get_secret "$IDE_PASSWORD_FILE")
+
+
+init-config-add "
+$SERVICE_NAME:
+  environment:
+    Zato_Log_Env_Details: \"True\"
+    Zato_SSH_Password: \"$ssh_password\"
+    Zato_Dashboard_Password: \"$dashboard_password\"
+    Zato_IDE_Password: \"$ide_password\"
+"
+
+# uid=$(docker_get_uid "$SERVICE_NAME" "zato")
+# mkdir -p "$DATASTORE_ZATO_DIR"
+# chown "$uid" "$DATASTORE_ZATO_DIR"
+

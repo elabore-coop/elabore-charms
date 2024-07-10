@@ -1,0 +1,30 @@
+# -*- ispell-local-dictionary: "english" -*-
+
+* Info 
+
+From: https://docs.n8n.io/hosting/installation/docker/#starting-n8n
+
+
+* Usage
+
+Config info: https://support.rallly.co/self-hosting/configuration-options
+
+Requires a =smtp-server= provider to be functional, you can use
+=smtp-stub= charm to provide information to externally managed =SMTP=.
+
+#+begin_src yaml
+n8n:
+ options:
+   sender-email: #the sender email (beware the conf of your SMTP server)
+
+smtp-stub:
+  options:
+    host: smtp.myhost.com
+    port: 465
+    connection-security: "ssl/tls"
+    auth-method: password #IMPORTANT: if not present login password doesn’t work
+    login: myuser
+    password: myp4ssw0rd
+#+end_src
+
+
