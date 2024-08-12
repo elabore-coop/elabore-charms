@@ -1,0 +1,12 @@
+#!/bin/bash
+
+DOMAIN=$(relation-get domain) || exit 1
+
+set -e
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      Zato_Dashboard_CSRF_Trusted_Origins: \"$DOMAIN\"
+"
