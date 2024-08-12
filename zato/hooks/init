@@ -21,7 +21,7 @@ DATASTORE_ZATO_DIR="$SERVICE_NAME$ZATO_DIR"
 
 SSH_PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/ssh-password
 DASHBOARD_PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/dashboard-password
-IDE_PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/utils-secret
+IDE_PASSWORD_FILE="$SERVICE_DATASTORE"/.compose/password/ide-password
 
 ssh_password=$(generate_or_get_secret "$SSH_PASSWORD_FILE")
 dashboard_password=$(generate_or_get_secret "$DASHBOARD_PASSWORD_FILE")

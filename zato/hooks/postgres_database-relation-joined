@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+user=$(relation-get user) || exit 1
+password="$(relation-get password)" || exit 1
+dbname="$(relation-get dbname)" || exit 1
+COMPOSE_DIR="$SERVICE_DATASTORE/.compose"
+
+echo "
+user:${user}
+dbname:${dbname}
+password:${password}
+" > $COMPOSE_DIR/psql_id

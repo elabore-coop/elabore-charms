@@ -18,6 +18,13 @@ uses:
       proxy: "Public access"
     default-options:
       target: !var-expand ${MASTER_BASE_SERVICE_NAME}:8183
+  postgres-database:
+    #constraint: required | recommended | optional
+    #auto: pair | summon | none ## default: pair
+    constraint: required
+    auto: summon
+    solves:
+      database: "main storage"
   backup:
     constraint: recommended
     auto: pair
