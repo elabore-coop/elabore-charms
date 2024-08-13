@@ -1,0 +1,23 @@
+description: Zato Doc
+subordinate: true
+requires:
+  web-publishing-directory:
+    interface: publish-dir
+    scope: container
+
+data-resources:
+  - /opt/zatodoc/
+
+
+uses:
+  publish-dir:
+    #constraint: required | recommended | optional
+    #auto: pair | summon | none ## default: pair
+    scope: container
+    constraint: required
+    auto: summon
+    solves:
+      container: "main running server"
+    default-options:
+      location: !var-expand "$DATASTORE/$BASE_SERVICE_NAME/opt/zatodoc"
+
