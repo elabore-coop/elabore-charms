@@ -32,6 +32,7 @@ init-config-add "
 $SERVICE_NAME:
   environment:
     Zato_Log_Env_Details: \"True\"
+    Zato_Dashboard_Debug_Enabled: \"True\"
     Zato_SSH_Password: \"$ssh_password\"
     Zato_Dashboard_Password: \"$dashboard_password\"
     Zato_IDE_Password: \"$ide_password\"

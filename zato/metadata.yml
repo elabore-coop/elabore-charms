@@ -2,11 +2,19 @@ docker-image: ghcr.io/zatosource/zato-3.2-quickstart:latest
 docker-compose:
   ports:
     - "22022:22"
-    - "8183:8183"
-    - "17010:17010"
+    #- "8183:8183"
+    - "21223:21223"
 
-data-resources:
+data-resources: ## /srv/datastore/data/$SERVICE_NAME/
   - /opt/hot-deploy/
+
+charm-resources: ## $CHARM_STORE/resources/
+  - /opt/zato/env/qs-1/load-balancer/config/repo/zato.config
+
+requires:
+  web-publishing-directory:
+    interface: publish-dir
+    scope: container
 
 uses:
   web-proxy:
