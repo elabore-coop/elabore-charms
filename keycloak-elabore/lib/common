@@ -1,0 +1,46 @@
+# -*- mode: bash -*-
+
+KEYCLOAK_DIR=/opt/keycloak
+DATASTORE_KEYCLOAK_DIR="$SERVICE_DATASTORE$KEYCLOAK_DIR"
+HOST_DATASTORE_KEYCLOAK_DIR="$HOST_DATASTORE/$SERVICE_NAME$KEYCLOAK_DIR"
+
+keycloak:generate-key-if-not-exist() {
+    local domain="$1" ip_host
+
+    [ -d "$DATASTORE_KEYCLOAK_DIR" ] && return 0
+
+    ip_host=$(set -o pipefail; getent ahostsv4 "$domain" | head -n 1 | cut -f 1 -d " ") || {
+        err "Couldn't resolve to ipv4 domain name '$domain'."
+	return 1
+    }
+    info "Resolved successfully '$domain' to ip '$ip_host'."
+    debug "DOCKER_BASE_IMAGE: $DOCKER_BASE_IMAGE"
+    debug "HOST_DATASTORE_KEYCLOAK_DIR:: $HOST_DATASTORE_KEYCLOAK_DIR"
+    mkdir -p "$DATASTORE_KEYCLOAK_DIR/conf" || return 0
+    docker_image_export_dir "$DOCKER_BASE_IMAGE" "/opt/keycloak" "$SERVICE_DATASTORE/opt" || return 1
+    uid=$(docker_get_uid "$SERVICE_NAME" "keycloak") || return 1
+    chown "$uid" "$DATASTORE_KEYCLOAK_DIR" -R
+    debug "DATASTORE_KEYCLOAK_DIR_LS:: $(ls $DATASTORE_KEYCLOAK_DIR)"
+    docker run -w /opt/keycloak \
+        -v "$HOST_DATASTORE_KEYCLOAK_DIR":"/opt/keycloak" \
+        --entrypoint bash \
+	"$DOCKER_BASE_IMAGE" -c " 
+    export KC_METRICS_ENABLED=true
+    export KC_FEATURES=token-exchange
+    export KC_DB=postgres
+    keytool -genkeypair -storepass password \
+        -storetype PKCS12 -keyalg RSA \
+	-keysize 2048 -dname 'CN=$domain' \
+	-alias server -ext 'SAN:c=DNS:$domain,IP:$ip_host' \
+	-keystore conf/server.keystore || exit 1
+     echo 'Generated key'
+     /opt/keycloak/bin/kc.sh build
+
+     " || { 
+
+        rmdir "$DATASTORE_KEYCLOAK_DIR/conf" 2>/dev/null
+        rmdir "$DATASTORE_KEYCLOAK_DIR" 2>/dev/null
+	return 1
+     }
+
+}

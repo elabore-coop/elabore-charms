@@ -1,8 +1,8 @@
 Description
 ===========
 
-Using ``keycloak`` version 17.0
-
+Using ``keycloak`` version 24.0
+DEV info : https://www.keycloak.org/server/containers
 
 Usage
 =====
@@ -11,6 +11,8 @@ To start with ``keycloak``, just put this service in your
 ``compose.yml``::
 
     keycloak:
+      docker-compose:
+        image: docker.0k.io/keycloak24.0.4-elabore:1.0.0
       options:
         admin-password: CHANGEME
       relations:

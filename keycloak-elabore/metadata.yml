@@ -1,6 +1,6 @@
 
 data-resources:
-  - /opt/keycloak/themes
+  - /opt/keycloak
 
 default-options:
 
@@ -8,7 +8,7 @@ uses:
   web-proxy:
     #constraint: required | recommended | optional
     #auto: pair | summon | none ## default: pair
-    constraint: recommended
+    constraint: required
     auto: pair
     solves:
       proxy: "Public access"

@@ -1,8 +1,13 @@
 #!/bin/bash
 
+. lib/common
+
 DOMAIN=$(relation-get domain) || exit 1
+#IP_HOST=$(hostname -I | awk '{print $1}')
 
 set -e
+keycloak:generate-key-if-not-exist "$DOMAIN"
+
 
 config-add "\
 services:
