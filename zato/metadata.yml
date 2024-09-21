@@ -1,18 +1,7 @@
-docker-image: ghcr.io/zatosource/zato-3.2-quickstart:latest
+docker-image: docker.0k.io/zato-3.2-quickstart
 docker-compose:
   ports:
-    - "22022:22"
-    - "8183:8183"
     - "21223:21223"
-
-data-resources: ## /srv/datastore/data/$SERVICE_NAME/
-  - /opt/hot-deploy/
-  - /opt/zato/current/extlib
-
-requires:
-  web-publishing-directory:
-    interface: publish-dir
-    scope: container
 
 uses:
   web-proxy:
@@ -27,7 +16,7 @@ uses:
   postgres-database:
     #constraint: required | recommended | optional
     #auto: pair | summon | none ## default: pair
-    constraint: required
+    constraint: recommended
     auto: summon
     solves:
       database: "main storage"
