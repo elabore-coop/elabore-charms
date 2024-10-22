@@ -9,17 +9,17 @@ fi
 . "$CHARM_PATH/lib/common"
 
 # Combined commands to be run as zato user
-local zato_commands="
-    /opt/zato/current/bin/zato stop /opt/zato/env/qs-1/server1/ &&
+zato_commands="
     cd /opt/zato/env/qs-1 &&
     ./start-server-fg.sh &
 "
 
 # Execute commands as zato user
+exec_as_zato_in_container "/opt/zato/current/bin/zato stop /opt/zato/env/qs-1/server1/"
+sleep 3
 if ! exec_as_zato_in_container "$zato_commands"; then
     printf "Error: Failed to execute zato commands in container '%s'.\n" "$CONTAINER_NAME" >&2
-    return 1
+    exit 1
 fi
 
 printf "Zato restarted  successfully in container '%s'.\n" "$CONTAINER_NAME" >&2
-

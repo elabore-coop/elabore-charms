@@ -9,7 +9,7 @@ fi
 . "$CHARM_PATH/lib/common"
 
 # Combined commands to be run as zato user
-local zato_commands="
+zato_commands="
     cd /opt/zato/env/qs-1 &&
     ./start-server-fg.sh &
 "

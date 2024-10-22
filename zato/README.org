@@ -1,30 +1,32 @@
 # -*- ispell-local-dictionary: "english" -*-
 
-* Info 
+* Info
 
-From: https://docs.n8n.io/hosting/installation/docker/#starting-n8n
+From Zato 3.2 : https://zato.io/en/docs/3.2/tutorial/01.html
 
 
 * Usage
 
-Config info: https://support.rallly.co/self-hosting/configuration-options
+Lauching with web-proxy need to have a frontend connected
+Deployments of services : they should be mounted as volume for the docker
 
-Requires a =smtp-server= provider to be functional, you can use
-=smtp-stub= charm to provide information to externally managed =SMTP=.
+Warning : if using keycloak the correct keycloak_public_key have to be manually placed in reso
 
 #+begin_src yaml
-n8n:
- options:
-   sender-email: #the sender email (beware the conf of your SMTP server)
 
-smtp-stub:
-  options:
-    host: smtp.myhost.com
-    port: 465
-    connection-security: "ssl/tls"
-    auth-method: password #IMPORTANT: if not present login password doesn’t work
-    login: myuser
-    password: myp4ssw0rd
+zato:
+  docker-compose:
+    volumes:
+      - <PROJECT_FOLDER>/schemas:/opt/zato/current/extlib/schemas:rw
+      - <PROJECT_FOLDER>/models:/opt/zato/current/extlib/models:rw
+      - <PROJECT_FOLDER>/services:/opt/hot-deploy/services:rw
+      - <PROJECT_FOLDER>/enmasse:/opt/hot-deploy/enmasse:rw
+      - <PROJECT_FOLDER>/resources/keycloak_public_key.pem:/opt/hot-deploy/keycloak_public_key.pem:rw
+  relations:
+    web-proxy:
+      frontend:
+        domain: zato.<mondomain>.coop
+
 #+end_src
 
 
