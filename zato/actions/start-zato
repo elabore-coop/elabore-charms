@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+if [ -z "$SERVICE_DATASTORE" ]; then
+    echo "This script is meant to be run through 'compose' to work properly." >&2
+    exit 1
+fi
+
+. "$CHARM_PATH/lib/common"
+
+# Combined commands to be run as zato user
+local zato_commands="
+    cd /opt/zato/env/qs-1 &&
+    ./start-server-fg.sh &
+"
+
+# Execute commands as zato user
+if ! exec_as_zato_in_container "$zato_commands"; then
+    printf "Error: Failed to execute zato commands in container '%s'.\n" "$CONTAINER_NAME" >&2
+    return 1
+fi
+
+printf "Zato started successfully in container '%s'.\n" "$CONTAINER_NAME" >&2
+

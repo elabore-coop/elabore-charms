@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 generate_or_get_secret() {
     local secret_file="$1"
@@ -16,4 +16,24 @@ generate_or_get_secret() {
     fi
 
     echo "$secret_value"
+}
+
+get_container_name(){
+    containers="$(get_running_containers_for_service "$SERVICE_NAME")"
+    if [ -z "$containers" ]; then
+        error "No running containers found for service $SERVICE_NAME"
+        exit 1
+    fi
+    container="$(echo "$containers" | head -n 1)"
+    echo "$container"
+}
+
+# Function to execute all commands sequentially as the zato user inside the Docker container
+exec_as_zato_in_container() {
+    CONTAINER_NAME=$(get_container_name)
+    local cmd="$1"
+    if ! docker exec -it "$CONTAINER_NAME" bash -c "su - zato -c '$cmd'"; then
+        printf "Error: Failed to execute command '%s' as zato user in container '%s'\n" "$cmd" "$CONTAINER_NAME" >&2
+        return 1
+    fi
 }
