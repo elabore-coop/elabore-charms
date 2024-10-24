@@ -14,7 +14,7 @@ uses:
   postgres-database:
     #constraint: required | recommended | optional
     #auto: pair | summon | none ## default: pair
-    constraint: required
+    constraint: recommended
     auto: summon
     solves:
       database: "main storage"
