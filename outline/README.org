@@ -49,33 +49,9 @@ We use the official image with an added patch due to 2 bugs:
 
 Note that a PR was pushed with a fix on the first bug. But this was not yet tested.
 
-These fix are on 0.76.0
+The fix are on 0.81.1
 
-** First fix
-
-We need to add "url.port = '';" in ~build/server/middlewares/passport.js~ to remove the port. Note that this is a bad fix but works for our setup.
-
-#+begin_src bash
-IMAGE=docker.0k.io/outline:0.76.0-elabore
-
-echo 'apk add patch bash' | dupd -u "$IMAGE" -- -u 1
-cat <<'EOF1' | dupd -u "$IMAGE" -- -u 0
-patch -p 1 <<'EOF2'
---- a/build/server/middlewares/passport.js
-+++ b/build/server/middlewares/passport.js
-@@ -40,6 +40,7 @@
-           const requestHost = ctx.get("host");
-           const url = new URL("".concat(reqProtocol, "://").concat(requestHost).concat(redirectUrl));
-           url.host = host;
-+          url.port = '';
-           return ctx.redirect("".concat(url.toString()).concat(hasQueryString ? "&" : "?", "notice=").concat(notice));
-         }
-         if (_env.default.isDevelopment) {
-EOF2
-EOF1
-#+end_src
-
-** Second fix
+** Fix
 
 Upon calling "/oidc" url, outline will return "Set-Cookie" header 
 with a "domain:" value that is incorrect (still the inner docker 
@@ -90,6 +66,7 @@ The patches will change the "build/" files, so this is a very temporary and brit
 #+begin_src bash
 IMAGE=docker.0k.io/outline:0.76.0-elabore
 
+echo 'apt update && apt install patch' | dupd -u "$IMAGE" -- -u 0
 cat <<'EOF1' | dupd -u "$IMAGE" -- -u 0
 patch -p 1 <<'EOF2'
 --- a/build/server/utils/passport.js.orig
