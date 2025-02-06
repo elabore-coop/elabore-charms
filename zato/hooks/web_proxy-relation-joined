@@ -1,14 +1,13 @@
 #!/bin/bash
 
+. lib/common
+
 DOMAIN=$(relation-get domain) || exit 1
-DEST_LETSENCRYPT_FULLCHAIN="$SERVICE_DATASTORE/opt/zato/letsencrypt-fullchain.pem"
 CUSTOM_CREATE_LB_PATH="/opt/zato/3.2.0/code/zato-cli/src/zato/cli/create_lb.py"
 
 set -e
 
-mkdir -p "${DEST_LETSENCRYPT_FULLCHAIN%/*}"
-
-cat $DATASTORE/letsencrypt/etc/letsencrypt/live/$DOMAIN/{fullchain,privkey}.pem > "$DEST_LETSENCRYPT_FULLCHAIN" || exit 1
+merge_crt_letsencrypt "$DOMAIN"
 
 # adding custom config file to handle https in load_balancer with letsencrypt-fullchain certificate
 

@@ -1,0 +1,11 @@
+#!/bin/bash
+# compose: no-hooks
+
+## Merged letsencrypt certificate for load_balancer in zato 
+
+. $CHARM_PATH/lib/common
+
+DOMAIN=$(relation:get "$SERVICE_NAME":web-proxy domain)
+
+
+merge_crt_letsencrypt "$DOMAIN" || exit 1 

@@ -37,3 +37,15 @@ exec_as_zato_in_container() {
         return 1
     fi
 }
+
+## merge certificate for zato HapProxy to handle https API calls
+merge_crt_letsencrypt(){
+    local DOMAIN="$1"
+    
+    DEST_LETSENCRYPT_FULLCHAIN="$SERVICE_DATASTORE/opt/zato/letsencrypt-fullchain.pem"
+    mkdir -p "${DEST_LETSENCRYPT_FULLCHAIN%/*}"
+    cat $DATASTORE/letsencrypt/etc/letsencrypt/live/$DOMAIN/{fullchain,privkey}.pem > "$DEST_LETSENCRYPT_FULLCHAIN" || return 1
+    info "Letsencrypt {fullchain,privkey}.pem have been concat to /opt/zato/letsencrypt-fullchain.pem for zato hapProxy conf"
+}
+
+

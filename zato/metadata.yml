@@ -20,6 +20,13 @@ uses:
     auto: summon
     solves:
       database: "main storage"
+  schedule-command:
+    constraint: required
+    auto: pair
+    solves:
+      maintenance: "Auto renew crt for hapProxy in zato"
+    default-options: !var-expand
+      (35 3 * * 7) {-D -p 10} compose renew_crt "$BASE_SERVICE_NAME"
   backup:
     constraint: recommended
     auto: pair
