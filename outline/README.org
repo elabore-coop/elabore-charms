@@ -49,7 +49,7 @@ We use the official image with an added patch due to 2 bugs:
 
 Note that a PR was pushed with a fix on the first bug. But this was not yet tested.
 
-The fix are on 0.81.1
+The fix are on 0.83.0
 
 ** Fix
 
@@ -64,7 +64,7 @@ The patches will change the "build/" files, so this is a very temporary and brit
 
 
 #+begin_src bash
-IMAGE=docker.0k.io/outline:0.76.0-elabore
+IMAGE=docker.0k.io/outline:0.83.0-elabore
 
 echo 'apt update && apt install patch' | dupd -u "$IMAGE" -- -u 0
 cat <<'EOF1' | dupd -u "$IMAGE" -- -u 0

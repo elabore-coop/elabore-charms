@@ -1,4 +1,4 @@
-docker-image: docker.0k.io/outline:0.81.1-elabore
+docker-image: docker.0k.io/outline:0.83.0-elabore
 
 uses:
   postgres-database:
@@ -12,6 +12,7 @@ uses:
       extensions:
         - uuid-ossp
         - unaccent
+        - pg_trm
   redis-database:
     constraint: required
     auto: summon
