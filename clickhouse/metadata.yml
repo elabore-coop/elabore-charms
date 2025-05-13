@@ -1,0 +1,21 @@
+docker-image: docker.0k.io/clickhouse:24.12-alpine
+#docker-image: clickhouse/clickhouse-server:24.12-alpine
+
+data-resources:
+  - /var/lib/clickhouse
+  - /var/log/clickhouse-server
+
+charm-resources:
+  - /etc/clickhouse-server/config.d/logs.xml
+  - /etc/clickhouse-server/config.d/ipv4-only.xml
+  - /etc/clickhouse-server/config.d/low-resources.xml
+
+provides:
+  event-db:
+
+uses:
+  log-rotate:
+    constraint: recommended
+    auto: pair
+    solves:
+      disk-leak: "/var/log/clickhouse-server"

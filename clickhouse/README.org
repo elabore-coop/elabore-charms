@@ -1,0 +1,7 @@
+# -*- ispell-local-dictionary: "english" -*-
+
+* Info
+
+This charm is provided to work with plausible charm
+
+* Usage

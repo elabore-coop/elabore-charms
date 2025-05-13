@@ -1,0 +1,26 @@
+#!/bin/bash
+
+SECRET_KEY_BASE="$SERVICE_DATASTORE"/secret-key
+
+SHARE_DIR="$SERVICE_DATASTORE"/var/lib/plausible
+
+uid=$(docker_get_uid "$SERVICE_NAME" "plausible")
+
+if ! [ -f "$SECRET_KEY_BASE" ]; then
+    info "Generating secret key"
+    mkdir -p "${SECRET_KEY_BASE%/*}"
+    umask 077
+    openssl rand -base64 64 > "$SECRET_KEY_BASE"
+else
+    info "Using existing secret key"
+fi
+
+secret_key_base=$(cat "$SECRET_KEY_BASE")
+
+init-config-add "
+$SERVICE_NAME:
+  environment:
+    SECRET_KEY_BASE: \"$secret_key_base\"
+"
+
+chown -v "$uid" "$SHARE_DIR"

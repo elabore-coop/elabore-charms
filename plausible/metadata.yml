@@ -1,0 +1,58 @@
+docker-image:  docker.0k.io/plausible:3.0.1
+#docker-image:  ghcr.io/plausible/community-edition:v3.0.1
+
+data-resources:
+  - /var/lib/plausible
+
+docker-compose:
+  entrypoint: sh -c "/entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
+  #entrypoint: sh -c "/entrypoint.sh run"
+uses:
+  event-db:
+    #constraint: required | recommended | optional
+    #auto: pair | summon | none ## default: pair
+    constraint: required
+    auto: summon
+    solves:
+      database: "event db"
+  postgres-database:
+    #constraint: required | recommended | optional
+    #auto: pair | summon | none ## default: pair
+    constraint: required
+    auto: summon
+    solves:
+      database: "main storage"
+    default-options:
+      extensions:
+        - citext
+  smtp-server:
+    constraint: required
+    auto: summon
+    solves:
+      proxy: "Public access"
+  web-proxy:
+    #constraint: required | recommended | optional
+    #auto: pair | summon | none ## default: pair
+    constraint: recommended
+    auto: pair
+    solves:
+      proxy: "Public access"
+    default-options:
+      target: !var-expand ${MASTER_BASE_SERVICE_NAME}:8000
+      apache-custom-rules:
+        - !var-expand |
+          ProxyPreserveHost On
+        
+          #Set web sockets
+          RewriteEngine On
+          RewriteCond %{HTTP:Upgrade} =websocket [NC]
+          RewriteCond %{HTTP:Connection} upgrade [NC]
+          RewriteRule ^/(live/websocket)$ ws://${MASTER_BASE_SERVICE_NAME}:8000/\$1 [P,L]
+
+
+  backup:
+    constraint: recommended
+    auto: pair
+    solves:
+      backup: "Automatic regular backup"
+    default-options:

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+host=$(relation-get host) || exit 1
+port=$(relation-get port) || exit 1
+user=$(relation-get login) || exit 1
+password="$(relation-get password)" || exit 1
+
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      SMTP_HOST_NAME: \"$user\"
+      SMTP_HOST_PASS: \"${password//\$/\$\$}\"
+      SMTP_HOST_ADDR: \"$host\"
+      SMTP_HOST_PORT: \"$port\"
+    #   SMTP_HOST_SSL_ENABLE: \"true\"
+"
+
