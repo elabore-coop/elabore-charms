@@ -1,0 +1,21 @@
+#!/bin/bash
+
+## Init is run on host
+## For now it is run every time the script is launched, but
+## it should be launched only once after build.
+
+## Accessible variables are:
+## - SERVICE_NAME        Name of current service
+## - DOCKER_BASE_IMAGE   Base image from which this service might be built if any
+## - SERVICE_DATASTORE           Location on host of the DATASTORE of this service
+## - SERVICE_CONFIGSTORE         Location on host of the CONFIGSTORE of this service
+
+set -e
+
+init-config-add "
+$SERVICE_NAME:
+  environment:
+    CLICKHOUSE_SKIP_USER_SETUP: 1
+  healthcheck:
+    test: [ \"CMD-SHELL\", \"wget --no-verbose --tries=1 -O - http://127.0.0.1:8123/ping || exit 1\" ]
+"

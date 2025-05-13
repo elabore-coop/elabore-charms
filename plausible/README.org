@@ -1,0 +1,7 @@
+# -*- ispell-local-dictionary: "english" -*-
+
+* Info 
+
+From: https://github.com/plausible/community-edition/
+
+* Usage

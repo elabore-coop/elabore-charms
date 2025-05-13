@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+
+
+config-add "\
+services:
+  $MASTER_BASE_SERVICE_NAME:
+    environment:
+      CLICKHOUSE_DATABASE_URL: http://$TARGET_SERVICE_NAME:8123/$TARGET_SERVICE_NAME
+"
+
+info "Configured $SERVICE_NAME code for $TARGET_SERVICE_NAME access."
