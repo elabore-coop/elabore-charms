@@ -62,7 +62,6 @@ $SERVICE_NAME:
     OIDC_LOGOUT_URI: \"$oidc_logout_uri\"
     OIDC_SCOPES: \"openid\"
     OIDC_USERNAME_CLAIM: \"preferred_username\"
-    OIDC_DISPLAY_NAME: \"OpenID Connect\"
     NODE_ENV: \"production\"
     LOG_LEVEL: \"debug\"
     FORCE_HTTPS: \"false\"
