@@ -32,7 +32,7 @@ get_container_name(){
 exec_as_zato_in_container() {
     CONTAINER_NAME=$(get_container_name)
     local cmd="$1"
-    if ! docker exec -it "$CONTAINER_NAME" bash -c "su - zato -c '$cmd'"; then
+    if ! docker exec -i "$CONTAINER_NAME" bash -c "su - zato -c '$cmd'"; then
         printf "Error: Failed to execute command '%s' as zato user in container '%s'\n" "$cmd" "$CONTAINER_NAME" >&2
         return 1
     fi

@@ -9,3 +9,15 @@ DOMAIN=$(relation:get "$SERVICE_NAME":web-proxy domain)
 
 
 merge_crt_letsencrypt "$DOMAIN" || exit 1 
+
+zato_commands="
+cd /opt/zato &&
+./restart-load-balancer.sh
+"
+
+if ! exec_as_zato_in_container "$zato_commands"; then
+    printf "Error: failed to execute 'restart-load-balancer' in container '%s'.\n" "$CONTAINER_NAME" >&2
+    return 1
+fi
+
+echo "load balancer restarted"
