@@ -3,6 +3,7 @@
 SECRET_KEY_BASE="$SERVICE_DATASTORE"/secret-key
 
 SHARE_DIR="$SERVICE_DATASTORE"/var/lib/plausible
+mkdir -p $SHARE_DIR
 
 uid=$(docker_get_uid "$SERVICE_NAME" "plausible")
 

@@ -12,10 +12,11 @@ config-add "\
 services:
   $MASTER_BASE_SERVICE_NAME:
     environment:
-      SMTP_HOST_NAME: \"$user\"
-      SMTP_HOST_PASS: \"${password//\$/\$\$}\"
+      SMTP_USER_NAME: \"$user\"
+      SMTP_USER_PWD: \"${password//\$/\$\$}\"
       SMTP_HOST_ADDR: \"$host\"
       SMTP_HOST_PORT: \"$port\"
-    #   SMTP_HOST_SSL_ENABLE: \"true\"
+      SMTP_HOST_SSL_ENABLE: \"true\"
+      MAILER_EMAIL: \"$user\"
 "
 
